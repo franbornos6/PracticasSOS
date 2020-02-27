@@ -1,4 +1,2 @@
 # PracticasSOS
-Esto es un texto normal
-## subseccion
-texto
+Este es el repositorio del laboratorio L04
