@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-	"start": "node index",  
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/franbornos6/PracticasSOS/issues"
   },
-  "homepage": "https://github.com/franbornos6/PracticasSOS#readme"
+  "homepage": "https://github.com/franbornos6/PracticasSOS#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
