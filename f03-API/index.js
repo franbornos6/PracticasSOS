@@ -18,7 +18,7 @@ app.get(BASE_API_URL + "/motogp-statistics/loadInitialData", (req, res) =>{
 	var motogp_statisticsInitial = [
 		{
 		country: "Spain",
-		pilot: "Jorge Lorenzo",
+		pilot: "Jorge_Lorenzo",
 		last_title: 2015,
 		world_title: 3,
 		victory: 47,
@@ -27,7 +27,7 @@ app.get(BASE_API_URL + "/motogp-statistics/loadInitialData", (req, res) =>{
 
 		{
 		country: "Spain",
-		pilot: "Marc Marquez",
+		pilot: "Marc_Marquez",
 		last_title: 2019,
 		world_title: 6,
 		victory: 56,
@@ -52,7 +52,7 @@ app.post(BASE_API_URL+"/motogp-statistics",(req,res) =>{
 	
 	var newStat = req.body;
 	
-	if((newStat == "") || ((newStat.name == null) && (newStat.country == null))){
+	if((newStat == "") || ((newStat.country == null) && (newStat.name == null))){
 		res.sendStatus(400, "BAD REQUEST");
 	}else{
 		motogp_statistics.push(newStat);
@@ -68,40 +68,40 @@ app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
 });
 
 
-//---------------------- GET /motogp_statistics/name----------------------------------
+//---------------------- GET /motogp_statistics/pilot----------------------------------
 
-app.get(BASE_API_URL+"/contacts/:name", (req,res)=>{
+app.get(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 	
-	var name = req.params.name
+	var pilot = req.params.pilot
 	
-	var filteredContacts = contacts.filter((c) => {
-		return (c.name == name);
+	var filteredMotogpStatstats = motogp_statistics.filter((c) => {
+		return (c.pilot == pilot);
 	});
 	
-	if(filteredContacts.length >= 1){
-		res.send(filteredContacts[0]);
+	if(filteredMotogpStatstats.length >= 1){
+		res.send(filteredMotogpStatstats[0]);
 	}else{
 		res.sendStatus(404,"NOT FOUND");
 	}
 });
-//----------------------- PUT /motogp_statistics/name-----------------------------------
+//----------------------- PUT /motogp_statistics/pilot-----------------------------------
 
 
 
 
 
-//----------------------- DELETE /motogp_statistics/name--------------------------------
+//----------------------- DELETE /motogp_statistics/pilot--------------------------------
 
-app.delete(BASE_API_URL+"/contacts/:name", (req,res)=>{
+app.delete(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 	
-	var name = req.params.name
+	var pilot = req.params.pilot
 	
-	var filteredContacts = contacts.filter((c) => {
-		return (c.name != name);
+	var filteredMotogpStatstats = motogp_statistics.filter((c) => {
+		return (c.pilot != pilot);
 	});
 	
-	if(filteredContacts.length < contacts.length){
-		contacts = filteredContacts;
+	if(filteredMotogpStatstats.length < motogp_statistics.length){
+		motogp_statistics = filteredMotogpStatstats;
 		res.sendStatus(200,"OK");
 	}else{
 		res.sendStatus(404,"NOT FOUND");
