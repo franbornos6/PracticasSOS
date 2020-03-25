@@ -40,15 +40,21 @@ app.get(BASE_API_URL + "/motogp-statistics/loadInitialData", (req, res) =>{
 });
 
 
-//--------------------- GET /motogp_statistics---------------------------------------
+//--------------------- GET /motogp-statistics---------------------------------------
 
 app.get(BASE_API_URL+"/motogp-statistics", (req,res) =>{
-	res.send(JSON.stringify(motogp_statistics,null,2));
+	
+	if(motogp_statistics == 0){
+		res.sendStatus(404,"NO HAY DATOS CARGADOS");
+	}else{
+		res.send(JSON.stringify(motogp_statistics,null,2));	
+	}
+	
 });
 
-//-------------------- POST /motogp_statistics---------------------------------------
+//-------------------- POST /motogp-statistics---------------------------------------
 
-app.post(BASE_API_URL+"/motogp-statistics",(req,res) =>{
+app.post(BASE_API_URL+"/motogp-statistics", (req,res) =>{
 	
 	var newStat = req.body;
 	
@@ -60,7 +66,13 @@ app.post(BASE_API_URL+"/motogp-statistics",(req,res) =>{
 	}
 });
 
-//--------------------- DELETE /motogp_statistics-----------------------------------
+// --------------------- PUT /motogp-statistics------------------------------------
+
+app.put(BASE_API_URL + "/motogp-statistics", (req,res) => {
+		res.sendStatus(405,"Method Not Allowed");
+});
+
+//--------------------- DELETE /motogp-statistics-----------------------------------
 
 app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
 	motogp_statistics = [];
@@ -68,7 +80,7 @@ app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
 });
 
 
-//---------------------- GET /motogp_statistics/pilot----------------------------------
+//---------------------- GET /motogp-statistics/:pilot----------------------------------
 
 app.get(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 	
@@ -84,13 +96,33 @@ app.get(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 		res.sendStatus(404,"NOT FOUND");
 	}
 });
-//----------------------- PUT /motogp_statistics/pilot-----------------------------------
+
+// ---------------------- POST /motogp-statistics/:pilot----------------------------------
+
+	app.post(BASE_API_URL + "/motogp-statistics/:pilot", (req,res) => {
+		res.sendStatus(405,"Method NOT Allowed");
+	});
+
+//----------------------- PUT /motogp-statistics/:pilot-----------------------------------
+
+	app.put(BASE_API_URL + "/motogp-statistics/:pilot", (req,res) => {
+		
+		var pilot = req.params.pilot
+		var newPilot = req.body
+		var filteredpilot = motogp_statistics.filter((c) => {
+		return (c.pilot == pilot);
+		});
+		
+		if(filteredpilot.pilot != newPilot.pilot){
+			res.sendStatus(409,"CONFLICT");	
+		}else{
+			res.push(newPilot);
+		}
+	})
 
 
 
-
-
-//----------------------- DELETE /motogp_statistics/pilot--------------------------------
+//----------------------- DELETE /motogp-statistics/:pilot--------------------------------
 
 app.delete(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 	
