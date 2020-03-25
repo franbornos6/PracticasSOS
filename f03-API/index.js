@@ -45,7 +45,7 @@ app.get(BASE_API_URL + "/motogp-statistics/loadInitialData", (req, res) =>{
 app.get(BASE_API_URL+"/motogp-statistics", (req,res) =>{
 	
 	if(motogp_statistics == 0){
-		res.sendStatus(404,"NO HAY DATOS CARGADOS");
+		res.status(404).send("No hay datos cargados");
 	}else{
 		res.send(JSON.stringify(motogp_statistics,null,2));	
 	}
@@ -58,7 +58,7 @@ app.post(BASE_API_URL+"/motogp-statistics", (req,res) =>{
 	
 	var newStat = req.body;
 	
-	if((newStat == "") || ((newStat.country == null) && (newStat.name == null))){
+	if((newStat == "") || (newStat.country == "") || (newStat.name == "")){
 		res.sendStatus(400, "BAD REQUEST");
 	}else{
 		motogp_statistics.push(newStat);
@@ -84,7 +84,7 @@ app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
 
 app.get(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 	
-	var pilot = req.params.pilot
+	var pilot = req.params.pilot;
 	
 	var filteredMotogpStatstats = motogp_statistics.filter((c) => {
 		return (c.pilot == pilot);
@@ -107,16 +107,17 @@ app.get(BASE_API_URL+"/motogp-statistics/:pilot", (req,res)=>{
 
 	app.put(BASE_API_URL + "/motogp-statistics/:pilot", (req,res) => {
 		
-		var pilot = req.params.pilot
-		var newPilot = req.body
-		var filteredpilot = motogp_statistics.filter((c) => {
-		return (c.pilot == pilot);
-		});
+		var original = req.params.pilot;
+		var modificada = req.body.pilot;
 		
-		if(filteredpilot.pilot != newPilot.pilot){
-			res.sendStatus(409,"CONFLICT");	
+		if(modificada != original){
+			res.sendStatus(400,"BAD REQUEST");
+			
 		}else{
-			res.push(newPilot);
+			var filteredPilot = motogp_statistics.filter(p => p.pilot != original);
+			motogp_statistics = filteredPilot;
+			motogp_statistics.push(req.body);
+			res.sendStatus(200,"OK");
 		}
 	})
 
