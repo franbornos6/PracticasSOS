@@ -93,8 +93,9 @@ module.exports = function(app) {
 	//--------------------- DELETE /motogp-statistics-----------------------------------
 
 	app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
-		db.remove({},{multi:true});
-		res.sendStatus(200, "OK");
+		db.remove({}, { multi: true }, function (err, numRemoved) {
+		});
+	res.sendStatus(200, "OK");
 	});
 
 
@@ -104,15 +105,11 @@ module.exports = function(app) {
 
 		var pilot = req.params.pilot;
 
-		var filteredMotogpStatstats = motogp_statistics.filter((c) => {
-			return (c.pilot == pilot);
+		db.find({pilot : pilot}, (err,motogp_statistics)=>{
+			res.send(JSON.stringify(motogp_statistics[0], null, 2));
+			res.sendStatus(200);
 		});
-
-		if(filteredMotogpStatstats.length >= 1){
-			res.send(filteredMotogpStatstats[0]);
-		}else{
-			res.sendStatus(404,"NOT FOUND");
-		}
+		
 	});
 
 	// ---------------------- POST /motogp-statistics/:pilot----------------------------------
@@ -128,18 +125,15 @@ module.exports = function(app) {
 			var original = req.params.pilot;
 			var modificada = req.body.pilot;
 
-			if(modificada != original){
-				res.sendStatus(400,"BAD REQUEST");
-
-			}else{
-				var filteredPilot = motogp_statistics.filter(p => p.pilot != original);
-				motogp_statistics = filteredPilot;
-				motogp_statistics.push(req.body);
-				res.sendStatus(200,"OK");
-			}
-		})
-
-
+			db.update({pilot:'original'} , {pilot:'modificada'} , { } , function (err,numReplaced){
+				
+				if(modificada != original){
+					res.sendStatus(400,"BAD REQUEST");
+				}else{
+					res.sendStatus(200,"OK");
+				}
+			});
+		});
 
 	//----------------------- DELETE /motogp-statistics/:pilot--------------------------------
 
@@ -147,16 +141,10 @@ module.exports = function(app) {
 
 		var pilot = req.params.pilot
 
-		var filteredMotogpStatstats = motogp_statistics.filter((c) => {
-			return (c.pilot != pilot);
-		});
-
-		if(filteredMotogpStatstats.length < motogp_statistics.length){
-			motogp_statistics = filteredMotogpStatstats;
+		db.remove({pilot : pilot}, {}, function (err, numRemoved) {
+			
 			res.sendStatus(200,"OK");
-		}else{
-			res.sendStatus(404,"NOT FOUND");
-		}
+		});
 	});
 	
 	console.log("Ok");
