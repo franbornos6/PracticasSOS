@@ -60,10 +60,6 @@ module.exports = function(app) {
 		}
 
 		});
-
-
-
-
 	});
 
 	//-------------------- POST /motogp-statistics---------------------------------------
@@ -71,13 +67,21 @@ module.exports = function(app) {
 	app.post(BASE_API_URL+"/motogp-statistics", (req,res) =>{
 
 		var newStat = req.body;
-
-		if((newStat == "") || (newStat.country == "") || (newStat.name == "")){
-			res.sendStatus(400, "BAD REQUEST");
-		}else{
-			motogp_statistics.push(newStat);
-			res.sendStatus(201,"CREATED");
-		}
+		var newPilot = req.body.pilot;
+		
+		db.find({"pilot": newPilot},(error, motogp_statistics)=>{
+			
+			if(motogp_statistics !=0){
+				res.status(409).send("Conflicto, El objeto con ese nombre ya existe");
+				
+			}else if((newStat == "") || (newStat.country == "") || (newStat.pilot == "")){
+				res.status(400).send("BAD REQUEST, Como minimo debe rellenar los campo country y pilot");
+				
+			}else{
+				db.insert(newStat);
+				res.sendStatus(201,"CREATED");
+			}
+		});
 	});
 
 	// --------------------- PUT /motogp-statistics------------------------------------
@@ -89,7 +93,7 @@ module.exports = function(app) {
 	//--------------------- DELETE /motogp-statistics-----------------------------------
 
 	app.delete(BASE_API_URL + "/motogp-statistics", (req,res) => {
-		motogp_statistics = [];
+		db.remove({},{multi:true});
 		res.sendStatus(200, "OK");
 	});
 
