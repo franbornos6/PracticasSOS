@@ -15,23 +15,15 @@ module.exports = function(app) {
 	
 		
 		var motogp_statisticsInitial = [
-			{
-			country: "Spain",
-			pilot: "Jorge_Lorenzo",
-			last_title: 2015,
-			world_title: 3,
-			victory: 47,
-			podium: 114
-			},
-
-			{
-			country: "Spain",
-			pilot: "Marc_Marquez",
-			last_title: 2019,
-			world_title: 6,
-			victory: 56,
-			podium: 95
-			}
+	{country: "Spain", pilot: "Jorge_Lorenzo", last_title: 2015, world_title: 3, victory: 47, podium: 114},
+	{country: "Spain", pilot: "Marc_Marquez", last_title: 2019, world_title: 6, victory: 56, podium: 95},
+	{country: "Italy", pilot: "Giacomo_Agostini", last_title: 1975, world_title: 8, victory: 68, podium: 88},
+	{country: "Italy", pilot: "Valentino_Rossi", last_title: 2009, world_title: 7, victory: 64, podium: 198},
+	{country: "Australia", pilot: "Mick_Doohan", last_title: 1998, world_title: 5, victory: 54, podium: 95},
+	{country: "Australia", pilot: "Casey_Stone", last_title: 2011, world_title: 2, victory: 38, podium: 69},
+	{country: "EEUU", pilot: "Wayne Rainey", last_title: 1992, world_title: 3, victory: 24, podium: 64},
+	{country: "Great_Britain", pilot: "Mike_Hailwood", last_title: 1965, world_title: 4, victory: 37, podium: 48},
+	{country: "EEUU", pilot: "Eddie_Lawson", last_title: 1989, world_title: 4, victory: 31, podium: 78}
 		];
 
 	//---------------- /GET motogp-statistics/loadInitialData -------------------------
@@ -50,15 +42,21 @@ module.exports = function(app) {
 	app.get(BASE_API_URL+"/motogp-statistics", (req,res) =>{
 		console.log("New GET .../motogp_statistics");
 
-		db.find({}, (err,motogp_statistics) => {
+		var limit = parseInt(req.query.limit);
+		var offset = parseInt(req.query.offset);
+		
+		db.find({}).skip(offset).limit(limit).exec(function (err,motogp_statistics) {
+			
+			motogp_statistics.forEach((e) => {
+				delete e._id;
+			});
 
 			if(motogp_statistics == 0){
 				res.status(404).send("No hay datos cargados");
 			}else{
 				res.send(JSON.stringify(motogp_statistics,null,2));
 				console.log(JSON.stringify(motogp_statistics,null,2));
-		}
-
+			}
 		});
 	});
 
@@ -106,10 +104,18 @@ module.exports = function(app) {
 		var pilot = req.params.pilot;
 
 		db.find({pilot : pilot}, (err,motogp_statistics)=>{
-			res.send(JSON.stringify(motogp_statistics[0], null, 2));
-			res.sendStatus(200);
+			
+			motogp_statistics.forEach((e) => {
+				delete e._id;
+			});
+			
+			if(motogp_statistics.length==1){
+				res.send(JSON.stringify(motogp_statistics[0], null, 2));
+				res.sendStatus(200);
+			}else{
+				res.status(409).send("Hay más de un piloto con ese nombre");
+			}
 		});
-		
 	});
 
 	// ---------------------- POST /motogp-statistics/:pilot----------------------------------
