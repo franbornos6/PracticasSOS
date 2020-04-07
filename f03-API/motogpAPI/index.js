@@ -122,15 +122,21 @@ module.exports = function(app) {
 
 		app.put(BASE_API_URL + "/motogp-statistics/:pilot", (req,res) => {
 
-			var original = req.params.pilot;
-			var modificada = req.body.pilot;
-
-			db.update({pilot:'original'} , {pilot:'modificada'} , { } , function (err,numReplaced){
+			var pilot = req.params.pilot;
+			var newPilot = req.body;
+			
+			db.find({pilot: pilot}, function(err, motogp_statistics){
 				
-				if(modificada != original){
-					res.sendStatus(400,"BAD REQUEST");
+				if(motogp_statistics ==0){
+					res.status(404).send("No existe ese piloto");
+					
+				}else if(pilot != newPilot.pilot){ 
+					res.status(400).send("El piloto debe ser el mismo");
+					
 				}else{
-					res.sendStatus(200,"OK");
+					db.update({pilot: pilot}, {$set: {country: newPilot.country, last_title: newPilot.last_title, 					  world_title: newPilot.world_title, victory: newPilot.victory, podium: newPilot.podium}}, {}, 					    function(err, numReplaced){});
+				
+					res.sendStatus(200,"Ok");
 				}
 			});
 		});
@@ -148,5 +154,5 @@ module.exports = function(app) {
 	});
 	
 	console.log("Ok");
-	
-};
+			
+};		
