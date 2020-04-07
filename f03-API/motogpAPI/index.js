@@ -109,11 +109,16 @@ module.exports = function(app) {
 				delete e._id;
 			});
 			
-			if(motogp_statistics.length==1){
+			if(motogp_statistics.length==0){
+				res.sendStatus(404);
+				
+			}else if(motogp_statistics.length==1){
 				res.send(JSON.stringify(motogp_statistics[0], null, 2));
 				res.sendStatus(200);
+				
 			}else{
 				res.status(409).send("Hay más de un piloto con ese nombre");
+
 			}
 		});
 	});
@@ -159,6 +164,5 @@ module.exports = function(app) {
 		});
 	});
 	
-	console.log("Ok");
-			
+	console.log("Ok");	
 };		
