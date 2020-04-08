@@ -14,13 +14,13 @@ module.exports = function(app) {
 					});
 	
 		
-		var motogp_statisticsInitial = [
+		var motogp_statistics = [
 	{country: "Spain", pilot: "Jorge_Lorenzo", last_title: 2015, world_title: 3, victory: 47, podium: 114},
 	{country: "Spain", pilot: "Marc_Marquez", last_title: 2019, world_title: 6, victory: 56, podium: 95},
 	{country: "Italy", pilot: "Giacomo_Agostini", last_title: 1975, world_title: 8, victory: 68, podium: 88},
 	{country: "Italy", pilot: "Valentino_Rossi", last_title: 2009, world_title: 7, victory: 64, podium: 198},
 	{country: "Australia", pilot: "Mick_Doohan", last_title: 1998, world_title: 5, victory: 54, podium: 95},
-	{country: "Australia", pilot: "Casey_Stone", last_title: 2011, world_title: 2, victory: 38, podium: 69},
+	{country: "Australia", pilot: "Casey_Stoner", last_title: 2011, world_title: 2, victory: 38, podium: 69},
 	{country: "EEUU", pilot: "Wayne Rainey", last_title: 1992, world_title: 3, victory: 24, podium: 64},
 	{country: "Great_Britain", pilot: "Mike_Hailwood", last_title: 1965, world_title: 4, victory: 37, podium: 48},
 	{country: "EEUU", pilot: "Eddie_Lawson", last_title: 1989, world_title: 4, victory: 31, podium: 78}
@@ -31,7 +31,7 @@ module.exports = function(app) {
 	app.get(BASE_API_URL + "/motogp-statistics/loadInitialData", (req, res) =>{
 		console.log("New GET .../motogp_statistics");
 
-		db.insert(motogp_statisticsInitial);
+		db.insert(motogp_statistics);
 		 res.sendStatus(200);
 		console.log("Initial motogp_statistics loaded: "+JSON.stringify(motogp_statistics,null,2));
 	});
@@ -44,8 +44,20 @@ module.exports = function(app) {
 
 		var limit = parseInt(req.query.limit);
 		var offset = parseInt(req.query.offset);
+		var search = {};
 		
-		db.find({}).skip(offset).limit(limit).exec(function (err,motogp_statistics) {
+		if(req.query.country) search["country"] = req.query.country;
+		if(req.query.pilot) search["pilot"] = req.query.pilot;
+		
+		if(req.query.from && req.query.to){
+			search["last_title"] = {$gte: req.query.from, $lte: req.query.to};
+		}
+		
+		if(req.query.world_titleMin && req.query.world_titleMax) search["world_title"] = {$gte: parseInt(req.query.world_titleMin), $lte: parseInt(req.query.world_titleMax)};
+		if(req.query.victoryMin && req.query.victoryMax) search["victory"] = {$gte: parseInt(req.query.victoryMin), $lte: parseInt(req.query.victoryMax)};
+		if(req.query.podiumMin && req.query.podiumMax) search["podium"] = {$gte: parseInt(req.query.podiumMin), $lte: parseInt(req.query.podiumMax)};
+		
+		db.find(search).skip(offset).limit(limit).exec(function (err,motogp_statistics) {
 			
 			motogp_statistics.forEach((e) => {
 				delete e._id;
@@ -117,7 +129,7 @@ module.exports = function(app) {
 				res.sendStatus(200);
 				
 			}else{
-				res.status(409).send("Hay más de un piloto con ese nombre");
+				res.status(409).send("Hay mรกs de un piloto con ese nombre");
 
 			}
 		});
