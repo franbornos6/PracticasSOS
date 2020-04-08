@@ -49,13 +49,23 @@ module.exports = function(app) {
 		if(req.query.country) search["country"] = req.query.country;
 		if(req.query.pilot) search["pilot"] = req.query.pilot;
 		
-		if(req.query.from && req.query.to){
-			search["last_title"] = {$gte: req.query.from, $lte: req.query.to};
+		if(req.query.last_title){
+			search["last_title"] = parseInt(req.query.last_title);
+		}else if(parseInt(req.query.from) && parseInt(req.query.to)){
+			search["last_title"]= {$gte: parseInt(req.query.from), $lte: parseInt(req.query.to)};
 		}
 		
 		if(req.query.world_titleMin && req.query.world_titleMax) search["world_title"] = {$gte: parseInt(req.query.world_titleMin), $lte: parseInt(req.query.world_titleMax)};
+		if(req.query.world_titleMin && !req.query.world_titleMax) search["world_title"] = {$gte: parseInt(req.query.world_titleMin)};
+		if(!req.query.world_titleMin && req.query.world_titleMax) search["world_title"] = {$lte: parseInt(req.query.world_titleMax)};
+
 		if(req.query.victoryMin && req.query.victoryMax) search["victory"] = {$gte: parseInt(req.query.victoryMin), $lte: parseInt(req.query.victoryMax)};
+		if(req.query.victoryMin && !req.query.victoryMax) search["victory"] = {$gte: parseInt(req.query.victoryMin)};
+		if(!req.query.victoryMin && req.query.victoryMax) search["victory"] = {$lte: parseInt(req.query.victoryMax)};
+		
 		if(req.query.podiumMin && req.query.podiumMax) search["podium"] = {$gte: parseInt(req.query.podiumMin), $lte: parseInt(req.query.podiumMax)};
+		if(req.query.podiumMin && !req.query.podiumMax) search["podium"] = {$gte: parseInt(req.query.podiumMin)};
+		if(!req.query.podiumMin && req.query.podiumMax) search["podium"] = {$lte: parseInt(req.query.podiumMax)};
 		
 		db.find(search).skip(offset).limit(limit).exec(function (err,motogp_statistics) {
 			
@@ -64,7 +74,7 @@ module.exports = function(app) {
 			});
 
 			if(motogp_statistics == 0){
-				res.status(404).send("No hay datos cargados");
+				res.status(404).send("No hay datos");
 			}else{
 				res.send(JSON.stringify(motogp_statistics,null,2));
 				console.log(JSON.stringify(motogp_statistics,null,2));
@@ -126,7 +136,6 @@ module.exports = function(app) {
 				
 			}else if(motogp_statistics.length==1){
 				res.send(JSON.stringify(motogp_statistics[0], null, 2));
-				res.sendStatus(200);
 				
 			}else{
 				res.status(409).send("Hay mรกs de un piloto con ese nombre");
