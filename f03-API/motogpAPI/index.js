@@ -89,19 +89,28 @@ module.exports = function(app) {
 		var newStat = req.body;
 		var newPilot = req.body.pilot;
 		
-		db.find({"pilot": newPilot},(error, motogp_statistics)=>{
+		if(newStat.length == 6 || !newStat.hasOwnProperty("country") || !newStat.hasOwnProperty("pilot")
+		   || !newStat.hasOwnProperty("last_title") || !newStat.hasOwnProperty("world_title") 
+		   || !newStat.hasOwnProperty("victory") || !newStat.hasOwnProperty("podium")){
 			
-			if(motogp_statistics !=0){
-				res.status(409).send("Conflicto, El objeto con ese nombre ya existe");
-				
-			}else if((newStat == "") || (newStat.country == "") || (newStat.pilot == "")){
-				res.status(400).send("BAD REQUEST, Como minimo debe rellenar los campo country y pilot");
-				
-			}else{
-				db.insert(newStat);
-				res.sendStatus(201,"CREATED");
-			}
-		});
+			res.sendStatus(400);
+			
+		}else{
+			
+			db.find({"pilot": newPilot},(error, motogp_statistics)=>{
+			
+				if(motogp_statistics !=0){
+					res.status(409).send("Conflicto, El objeto con ese nombre ya existe");
+
+				}else if((newStat == "") || (newStat.country == "") || (newStat.pilot == "")){
+					res.status(400).send("BAD REQUEST, Como minimo debe rellenar los campo country y pilot");
+
+				}else{
+					db.insert(newStat);
+					res.sendStatus(201,"CREATED");
+				}
+			});
+		}
 	});
 
 	// --------------------- PUT /motogp-statistics------------------------------------
@@ -157,20 +166,30 @@ module.exports = function(app) {
 			var pilot = req.params.pilot;
 			var newPilot = req.body;
 			
-			db.find({pilot: pilot}, function(err, motogp_statistics){
+			if(!newPilot.hasOwnProperty("country") || newPilot.country == null || !newPilot.hasOwnProperty("pilot")
+			   || newPilot.pilot == null || !newPilot.hasOwnProperty("last_title") || newPilot.last_title == null
+			   || !newPilot.hasOwnProperty("world_title") || newPilot.world_title == null || !newPilot.hasOwnProperty("victory")
+			   || newPilot.victory == null || !newPilot.hasOwnProperty("podium") || newPilot.podium == null){
 				
-				if(motogp_statistics ==0){
-					res.status(404).send("No existe ese piloto");
-					
-				}else if(pilot != newPilot.pilot){ 
-					res.status(400).send("El piloto debe ser el mismo");
-					
-				}else{
-					db.update({pilot: pilot}, {$set: {country: newPilot.country, last_title: newPilot.last_title, 					  world_title: newPilot.world_title, victory: newPilot.victory, podium: newPilot.podium}}, {}, 					    function(err, numReplaced){});
+				res.status(400).send("Debe de tener los campos country, pilot, last_title, world_title, victory y podium");
 				
-					res.sendStatus(200,"Ok");
-				}
-			});
+			}else{
+				db.find({pilot: pilot}, function(err, motogp_statistics){
+				
+					if(motogp_statistics ==0){
+						res.status(404).send("No existe ese piloto");
+
+					}else if(pilot != newPilot.pilot){ 
+						res.status(400).send("El piloto debe ser el mismo");
+
+					}else{
+						db.update({pilot: pilot}, {$set: {country: newPilot.country, last_title: newPilot.last_title,  
+						world_title: newPilot.world_title, victory: newPilot.victory, podium: newPilot.podium}}, {}, function(err, numReplaced){});
+
+						res.sendStatus(200,"Ok");
+					}
+				});
+			}
 		});
 
 	//----------------------- DELETE /motogp-statistics/:pilot--------------------------------
