@@ -32,7 +32,7 @@ module.exports = function(app) {
 		console.log("New GET .../motogp_statistics");
 
 		db.insert(motogp_statistics);
-		 res.sendStatus(200);
+		 res.status(200).send("Datos Cargados");
 		console.log("Initial motogp_statistics loaded: "+JSON.stringify(motogp_statistics,null,2));
 	});
 
